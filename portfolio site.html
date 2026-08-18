@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid CV & Field Portfolio Builder | Powered by PrintKay's Tech</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <!-- html2pdf.js CDN for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* Styling to ensure PDF layout renders clean text and justified paragraphs */
+    .pdf-preview p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen p-4 md:p-8 font-sans transition-colors duration-300">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top Branding & Navigation Bar -->
+    <header class="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 md:p-6 shadow-md transition-colors duration-300">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-sky-600 dark:text-sky-400 bg-sky-100 dark:bg-sky-950/60 px-2.5 py-1 rounded border border-sky-300 dark:border-sky-800">
+            PrintKay's Tech
+          </span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Enterprise Engine</span>
+        </div>
+        <h1 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+          Hybrid CV & Field Portfolio Builder
+        </h1>
+      </div>
+
+      <!-- Controls: Theme Toggle & Download Button -->
+      <div class="flex items-center gap-3 mt-4 sm:mt-0">
+        <!-- Theme Toggle Button -->
+        <button type="button" id="themeToggleBtn" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 transition flex items-center gap-2">
+          <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+        </button>
+
+        <!-- PDF Export Button -->
+        <button type="button" id="downloadPdfBtn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-5 py-2.5 rounded-lg shadow-md transition text-xs uppercase tracking-wider">
+          Download PDF
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid: Left Form, Right Preview -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+      <!-- ==================== LEFT: INPUT FORM ==================== -->
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xl space-y-6 transition-colors duration-300">
+        
+        <h2 class="text-lg font-bold text-sky-600 dark:text-sky-300 border-l-4 border-sky-500 pl-3">
+          Enter Candidate Details
+        </h2>
+
+        <form id="portfolioForm" class="space-y-6">
+
+          <!-- 1. General Info -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">1. Personal & Contact Info</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="in_name" placeholder="Full Name & Qualifications" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+              <input type="text" id="in_title" placeholder="Professional Title / Headline" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+              <input type="email" id="in_email" placeholder="Primary Email" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+              <input type="text" id="in_phone" placeholder="Phone / WhatsApp" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+              <input type="text" id="in_location" placeholder="Location / Region" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+              <input type="text" id="in_cv" placeholder="Link to Resume/CV (URL)" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- 2. Overview & Bio -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">2. Executive Summary</h3>
+            <textarea id="in_summary" rows="3" placeholder="Brief statement highlighting technical focus, field experience, and strengths..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none"></textarea>
+          </div>
+
+          <!-- 3. Skills & Certifications -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">3. Skills & Certifications</h3>
+            <textarea id="in_skills" rows="2" placeholder="Core Competencies (e.g., Equipment Diagnostics, Maintenance, Engineering Tools)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none"></textarea>
+            <input type="text" id="in_certs" placeholder="Industry Certifications & Licenses" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100 focus:border-sky-500 focus:outline-none" />
+          </div>
+
+          <!-- 4. Experience / Deployments -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">4. Key Field Deployments / Work History</h3>
+            <div id="experienceInputs" class="space-y-3">
+              <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded border border-slate-300 dark:border-slate-700 space-y-2">
+                <input type="text" class="exp-title w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Role & Vessel / Rig / Location" />
+                <textarea class="exp-desc w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" rows="2" placeholder="Responsibilities & Key Achievements..."></textarea>
+              </div>
+            </div>
+            <button type="button" id="addExpBtn" class="text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold">+ Add Another Deployment Log</button>
+          </div>
+
+          <!-- 5. Field Evidence & Images -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">5. Field Evidence & Media Upload</h3>
+            <input type="file" id="imageInput" accept="image/*" multiple class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-sky-600 file:text-white file:cursor-pointer hover:file:bg-sky-500" />
+          </div>
+
+          <!-- 6. Custom Extra Details -->
+          <div class="space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">6. Custom & Special Requirements</h3>
+            <div id="customInputs" class="space-y-2">
+              <div class="flex gap-2">
+                <input type="text" class="custom-key w-1/3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Title (e.g., Tools Used)" />
+                <input type="text" class="custom-val w-2/3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Details or Notes..." />
+              </div>
+            </div>
+            <button type="button" id="addCustomBtn" class="text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold">+ Add Custom Field</button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ==================== RIGHT: LIVE PREVIEW PANEL ==================== -->
+      <div class="space-y-3">
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">
+          Live Portfolio Preview
+        </div>
+
+        <!-- Printable Preview Container -->
+        <div id="pdf-preview-content" class="pdf-preview bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-800 rounded-xl p-6 md:p-8 space-y-6 shadow-2xl transition-colors duration-300">
+          
+          <!-- Header Section -->
+          <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 id="out_name" class="text-2xl font-bold text-sky-600 dark:text-sky-400 uppercase tracking-tight">Caleb Anthony</h2>
+                <p id="out_title" class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">Offshore Systems Specialist</p>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Portfolio Document</span>
+                <span class="text-[10px] text-sky-600 dark:text-sky-400 font-bold">PrintKay's Tech</span>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+              <p><strong>Email:</strong> <span id="out_email">example@email.com</span></p>
+              <p><strong>Phone:</strong> <span id="out_phone">+123456789</span></p>
+              <p><strong>Location:</strong> <span id="out_location">Not specified</span></p>
+              <p><strong>CV Link:</strong> <span id="out_cv">N/A</span></p>
+            </div>
+          </div>
+
+          <!-- Executive Summary -->
+          <div class="space-y-1">
+            <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Professional Overview</h3>
+            <p id="out_summary" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed pt-1">
+              Provide a brief executive summary statement on the left to preview it here...
+            </p>
+          </div>
+
+          <!-- Skills & Certifications -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Core Competencies</h3>
+              <p id="out_skills" class="text-xs text-slate-700 dark:text-slate-300 pt-1">System Diagnostics, Equipment Maintenance</p>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Certifications & Credentials</h3>
+              <p id="out_certs" class="text-xs text-slate-700 dark:text-slate-300 pt-1">STCW, Safety Compliance</p>
+            </div>
+          </div>
+
+          <!-- Experience Log -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Field Deployments & Operations</h3>
+            <div id="out_experience" class="space-y-3 pt-1">
+              <!-- Dynamic experience logs render here -->
+            </div>
+          </div>
+
+          <!-- Field Media Evidence Preview -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Field Proof & Media Evidence</h3>
+            <div id="out_images" class="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+              <p class="text-xs text-slate-400 dark:text-slate-500 col-span-full italic">No media evidence uploaded yet.</p>
+            </div>
+          </div>
+
+          <!-- Custom Details -->
+          <div id="out_custom_wrapper" class="space-y-2 hidden">
+            <h3 class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-1">Special & Additional Requirements</h3>
+            <div id="out_custom" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300 pt-1">
+              <!-- Custom inputs render here -->
+            </div>
+          </div>
+
+          <!-- Footer Branding in Preview -->
+          <div class="border-t border-slate-200 dark:border-slate-800 pt-3 text-center">
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-semibold">
+              Organized & Engineered by PrintKay's Tech
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- UI Footer -->
+    <footer class="text-center pt-6 pb-2 text-xs text-slate-500 dark:text-slate-400">
+      <p>© 2026 PrintKay's Tech — Powered by P.KAY Digital Enterprise</p>
+    </footer>
+
+  </div>
+
+  <!-- JavaScript logic -->
+  <script>
+    // 1. Dark / Light Theme Toggle Engine
+    const htmlRoot = document.getElementById('html-root');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    themeToggleBtn.addEventListener('click', () => {
+      if (htmlRoot.classList.contains('dark')) {
+        htmlRoot.classList.remove('dark');
+        themeIcon.innerText = '☀️';
+        themeText.innerText = 'Light Mode';
+      } else {
+        htmlRoot.classList.add('dark');
+        themeIcon.innerText = '🌙';
+        themeText.innerText = 'Dark Mode';
+      }
+    });
+
+    // 2. Input Synchronization Utility
+    function bindInput(inputId, outputId, defaultText = 'N/A') {
+      const input = document.getElementById(inputId);
+      const output = document.getElementById(outputId);
+      input.addEventListener('input', () => {
+        output.innerText = input.value.trim() !== '' ? input.value : defaultText;
+      });
+    }
+
+    bindInput('in_name', 'out_name', 'Caleb Anthony');
+    bindInput('in_title', 'out_title', 'Offshore Systems Specialist');
+    bindInput('in_email', 'out_email', 'example@email.com');
+    bindInput('in_phone', 'out_phone', 'Not provided');
+    bindInput('in_location', 'out_location', 'Not provided');
+    bindInput('in_cv', 'out_cv', 'N/A');
+    bindInput('in_summary', 'out_summary', 'Provide a brief summary on the left to display here...');
+    bindInput('in_skills', 'out_skills', 'Not specified');
+    bindInput('in_certs', 'out_certs', 'Not specified');
+
+    // 3. Dynamic Deployments Log Engine
+    function updateExperiencePreview() {
+      const outExp = document.getElementById('out_experience');
+      outExp.innerHTML = '';
+      
+      const titles = document.querySelectorAll('.exp-title');
+      const descs = document.querySelectorAll('.exp-desc');
+
+      titles.forEach((titleInput, index) => {
+        const titleVal = titleInput.value.trim();
+        const descVal = descs[index] ? descs[index].value.trim() : '';
+
+        if (titleVal || descVal) {
+          const item = document.createElement('div');
+          item.className = 'bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded p-2.5 space-y-1';
+          item.innerHTML = `
+            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200">${titleVal || 'Deployment Entry'}</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400">${descVal}</p>
+          `;
+          outExp.appendChild(item);
+        }
+      });
+
+      if (outExp.children.length === 0) {
+        outExp.innerHTML = '<p class="text-xs text-slate-400 dark:text-slate-500 italic">No deployments logged yet.</p>';
+      }
+    }
+
+    document.getElementById('experienceInputs').addEventListener('input', updateExperiencePreview);
+
+    document.getElementById('addExpBtn').addEventListener('click', () => {
+      const container = document.getElementById('experienceInputs');
+      const div = document.createElement('div');
+      div.className = 'bg-slate-100 dark:bg-slate-900/60 p-3 rounded border border-slate-300 dark:border-slate-700 space-y-2';
+      div.innerHTML = `
+        <input type="text" class="exp-title w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Role & Vessel / Rig / Location" />
+        <textarea class="exp-desc w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" rows="2" placeholder="Responsibilities & Key Achievements..."></textarea>
+      `;
+      container.appendChild(div);
+      updateExperiencePreview();
+    });
+
+    // 4. Dynamic Custom Details Engine
+    function updateCustomPreview() {
+      const outCustom = document.getElementById('out_custom');
+      const wrapper = document.getElementById('out_custom_wrapper');
+      outCustom.innerHTML = '';
+
+      const keys = document.querySelectorAll('.custom-key');
+      const vals = document.querySelectorAll('.custom-val');
+      let hasContent = false;
+
+      keys.forEach((keyInput, index) => {
+        const k = keyInput.value.trim();
+        const v = vals[index] ? vals[index].value.trim() : '';
+
+        if (k || v) {
+          hasContent = true;
+          const item = document.createElement('p');
+          item.innerHTML = `<strong class="text-slate-800 dark:text-slate-200">${k}:</strong> ${v}`;
+          outCustom.appendChild(item);
+        }
+      });
+
+      wrapper.classList.toggle('hidden', !hasContent);
+    }
+
+    document.getElementById('customInputs').addEventListener('input', updateCustomPreview);
+
+    document.getElementById('addCustomBtn').addEventListener('click', () => {
+      const container = document.getElementById('customInputs');
+      const div = document.createElement('div');
+      div.className = 'flex gap-2';
+      div.innerHTML = `
+        <input type="text" class="custom-key w-1/3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Title" />
+        <input type="text" class="custom-val w-2/3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-slate-100" placeholder="Details or Notes..." />
+      `;
+      container.appendChild(div);
+      updateCustomPreview();
+    });
+
+    // 5. Image Upload & Justified Grid Preview
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+      const outImages = document.getElementById('out_images');
+      outImages.innerHTML = '';
+      const files = event.target.files;
+
+      if (files.length === 0) {
+        outImages.innerHTML = '<p class="text-xs text-slate-400 dark:text-slate-500 col-span-full italic">No media evidence uploaded yet.</p>';
+        return;
+      }
+
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const card = document.createElement('div');
+            card.className = 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded p-1.5 text-center space-y-1';
+            
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'w-full h-28 object-cover rounded';
+
+            const caption = document.createElement('p');
+            caption.className = 'text-[10px] text-slate-500 dark:text-slate-400 truncate px-1';
+            caption.innerText = file.name;
+
+            card.appendChild(img);
+            card.appendChild(caption);
+            outImages.appendChild(card);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    // Initial setup call
+    updateExperiencePreview();
+
+    // 6. PDF Export Engine
+    document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+      const element = document.getElementById('pdf-preview-content');
+      const isDarkMode = htmlRoot.classList.contains('dark');
+
+      const options = {
+        margin:       [0.3, 0.3, 0.3, 0.3],
+        filename:     'PrintKays_Tech_Field_Portfolio_CV.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: isDarkMode ? '#020617' : '#ffffff' },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(options).from(element).save();
+    });
+  </script>
+</body>
+</html>
